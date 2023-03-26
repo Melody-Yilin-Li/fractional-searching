@@ -3,7 +3,7 @@ click==7.1.2
 h11==0.14.0
 itsdangerous==1.1.0
 MarkupSafe==1.1.1
-otree==5.10.3
+otree==5.8.0
 python-multipart==0.0.5
 six==1.16.0
 SQLAlchemy==1.3.22
