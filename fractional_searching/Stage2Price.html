@@ -1,7 +1,64 @@
 {{ block title }}
-    Page title
+    Stage 2 - Price
 {{ endblock }}
 {{ block content }}
+    <p>
+        This is <b>round {{ round_number }}</b>. 
+    </p>
+    <p>
+        You are <b>{{ role }}</b> in this round. 
+    </p>
+    <p>
+        You chose product <b>type {{ type }}</b> in stage 1. 
+    </p>
+    {{ if role == 'Player A' }}
+        <p>
+            The value of your product to consumers is {{ utility }} points. 
+        </p>
+        <p>
+            {{ if type == 'X' }}
+                Your production cost is {{ cost }} points.
+            {{else }}
+                Your production cost if {{ cost_i }} points. 
+            {{ endif }}
+        </p>
+        <p>
+            The {{ opponent_role }} in your group chose type {{ opponent_quality }}. 
+            {{ if treat == 'OL' }}
+                The value of her product to consumers is {{ opponent_value }} points 
+                and her cost is {{ opponent_cost }} points.
+            {{ else }}
+                Her product type is not revealed to consumers. 
+                The expected value of her product to consumers is {{ opponent_value }} points 
+                and her cost is {{ opponent_cost }} points.
+            {{ endif }}
+        </p>
+    {{ elif role == 'Player B' }}
+        <p>
+            {{ if treat == 'OL' }}
+                The value of your product to consumers is {{ utility }} points. 
+            {{ else }}
+                The value of your product is known to consumers in this stage, 
+                but the expected value of your product to consumers is {{ utility_m }} points.
+                It will be revealed to consumers in stage 3 if there are consumers buying from you in this stage. 
+            {{ endif }}
+        </p>
+        <p>
+            {{ if type == 'X' }}
+                Your production cost is {{ cost }} points.
+            {{else }}
+                Your production cost is {{ cost_e }} points. 
+            {{ endif }}
+        </p>
+        <p>
+            The {{ opponent_role }} in your group chose type {{ opponent_quality }}. 
+            The value of her product to consumers is {{ opponent_value }} points 
+            and her cost is {{ opponent_cost }} points.
+        </p> 
+    {{ endif }}
+
+
+
 
     {{ formfields }}
     {{ next_button }}

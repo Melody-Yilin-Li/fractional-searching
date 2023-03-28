@@ -3,22 +3,56 @@
 {{ endblock }}
 
 {{ block content }}
-
-      <b>Directions</b>: Please read the instructions below carefully as you 
-                       will be asked comprehension questions afterwards. 
-                       
-
-       You will participate in several economic tasks called "behavioral games" over the 
-       next few minutes.
-                      <br><br>
-       This game is played by pairs of individuals. Each pair is made up of a 
-       <b> Player A </b> and a <b> Player B. </b>
-                     <br><br>
-       You will play this game for {{ num_rounds }} rounds and you will be randomly grouped 
-       with another player in each rounds. 
-       
-  
-
-    {{ next_button }}
+    <p>
+        <b>Directions</b>: Please read the instructions below carefully as your payoff highly 
+        depends on your understanding. 
+    </p>
+    <p>
+        You will participate in an economic task, in which you are going to sell your product
+        to a total of 100 consumers. <br>
+        This game is played by pairs of individuals. Each pair is made up of a 
+        <b> Player A </b> and a <b> Player B </b>. <br>
+        You will play this game for {{ num_rounds }} rounds and you will be randomly grouped 
+        with another player in each round. <br>  
+    </p>
+    <p>
+        Each round has multiple stages as follows: <br>
+        <b>Stage 1</b>: <br> 
+            You choose your product <b>type</b>, <b>X</b> or <b>Y</b>. <br> 
+            You have different costs of producing type X and type Y. <br>
+            The values of two types are different to consumers. <br> 
+        <b>Stage 2</b>: <br> 
+            You observe the type of other player's product in your group 
+            and her cost of producing that type. <br> 
+            You set the price of your product to be an integer inbetween your cost of producing it 
+            and the value of that type to consumers. <br> 
+            Consumers know both players' types and will buy the product that gives them a higher payoff, 
+            <b>value</b> of the product - <b>price</b> of the product. <br>
+            Player B's product type may be unknown to consuemrs in this stage, 
+            so they will believe her product is either type with equal probabilities and the value will 
+            be the average of both types. <br> 
+            Player B's type will be revealed to consumers in stage 3 
+            if there are consumers buying from her in stage 2. <br>
+            Your payoff in this stage is calculated as <math><b>(price - cost) &times; N</b> </math>,
+            where N is the number of consumers who bought your product. <br> 
+        <b>Stage 3</b>: <br> 
+            You observe the number of consumers who bought your product and your payoff in stage 2. <br>
+            You set the price of your product to be an integer inbetween your cost of producing it 
+            and the value of that type to consumers. <br> 
+            Consumers know both players' types and will buy the product that gives them a higher payoff, 
+            <b>value</b> of the product - <b>price</b> of the product. <br>
+            Player B's product type may be revealed to consumers in this stage if she had consumers buying 
+            from her in stage 2. Thus consumers will know the exact value of her product in this stage. <br>
+            Your payoff in this stage is calculated as <math><b>(price - cost) &times; N</b> </math>,
+            where N is the number of consumers who bought your product. <br> 
+    </p>
+    <p>
+        After each round, your payoff is calculated as the sum of your payoff in stage 2 and your payoff in stage 3. <br>
+        After the last round, you will see you total payoff as the sum of payoffs in all rounds. 
+    </p>
+    <p>
+        Please raise your hand in the Zoom call if you finish reading the instructions and are ready to play the game. 
+    </p>
+    <!-- {{ next_button }} -->
 
 {{ endblock }}

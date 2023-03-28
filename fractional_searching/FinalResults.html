@@ -1,0 +1,21 @@
+{{ block title }}
+    Final Results
+{{ endblock }}
+
+{{ block content }}
+    <p>
+        Congratulations on completing the experiment. 
+    </p>
+    <p>
+        Your payoffs from all rounds are as follows: 
+    </p>
+    {% for payoff in payoffs %}
+        <p>
+            Round {{ forloop.counter }}: {{ payoff }}
+        </p>
+    {% endfor %}
+    <p>Your total payoff from all rounds: <b>{{ total_payoff }}</b></p>
+
+{{ endblock }}
+
+

@@ -1,9 +1,85 @@
 {{ block title }}
-    Page title
+    Round Results
 {{ endblock }}
 
 {{ block content }}
+    <p>
+        This is <b>round {{ round_number }}</b>. 
+    </p>
+    <p>
+        You are <b>{{ role }}</b> in this round. 
+    </p>
+    <p>
+        You chose product <b>type {{ type }}</b> in stage 1 
+        and set the price at <b>{{ price1 }} points</b> in stage 2 and <b>{{ price2 }} points</b> in stage 3. 
+    </p>
 
+    {{ if role == 'Player A' }}
+        <p> 
+            The value of your product to consumers is {{ utility }} points. 
+            {{ if type == 'X' }}
+                Your production cost is {{ cost }} points.
+            {{else }}
+                Your production cost i3 {{ cost_i }} points. 
+            {{ endif }}
+        </p>
+        <p>
+            <b>{{ demand2 }}</b> consumers chose to buy your product in stage 3 and your payoff in stage 3
+            is {{ payoff2 }} points. 
+        </p>
+        <p>
+            The {{ opponent_role }} in your group chose type {{ opponent_quality }} in stage 1
+            and set the price at {{ opponent_price2 }} points in stage 3. 
+            {{ if entry == 1 }}
+                Her product type is revealed to consumers. 
+                The value of her product to consumers is {{ opponent_value }} points 
+                and her cost is {{ opponent_cost }} points.
+            {{ else }}
+                Her product type is not revealed to consumers. 
+                The expected value of her product to consumers is {{ opponent_value }} points 
+                and her cost is {{ opponent_cost }} points.
+            {{ endif }}
+        </p>
+    {{ elif role == 'Player B' }}
+        {{ if treat == 'OL' }}
+            <p>
+                The value of your product to consumers is {{ utility }} points. 
+            </p>
+        {{ else }}
+            <p>
+                <b>{{ demand2 }}</b> consumers chose to buy your product in stage 3 and your payoff in stage 3 
+            is {{ payoff2 }} points. 
+            </p>
+            <p>
+                {{ if demand1 > 0 }}
+                    Your product type {{ type }} is revealed to consumers 
+                    and the value of your product to consumers is {{ utility }} points.
+                {{ else }}
+                    Your product type is NOT revealed 
+                    so the expected value of your product to consumers is {{ utility_m }} points.
+                {{ endif }}
+            </p>
+        {{ endif }}
+        <p>
+            {{ if type == 'X' }}
+                Your production cost is {{ cost }} points.
+            {{ else }}
+                Your production cost is {{ cost_e }} points. 
+            {{ endif }}
+        </p>
+        <p>
+            The {{ opponent_role }} in your group chose type {{ opponent_quality }} in stage 1 
+            and set the price at {{ opponent_price2 }} points in stage 3. 
+            The value of her product to consumers is {{ opponent_value }} points. 
+            Her cost is {{ opponent_cost }} points. 
+        </p>
+    {{ endif }}
+    <p>
+        Your payoff in round {{ round_number }} is <math><b>{{ payoff1 }} points + {{ payoff2 }} points = {{ round_payoff }}</b></math>. 
+    </p>
+    <p>
+        Please press Next if you are ready to move onto next round. 
+    </p>
     {{ next_button }}
 {{ endblock }}
 
