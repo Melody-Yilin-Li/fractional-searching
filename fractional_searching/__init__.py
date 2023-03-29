@@ -71,12 +71,12 @@ class Player(BasePlayer):
     )
 
     price1 = models.IntegerField(
-        label='Please enter the price you want to charge for your product (integer only) in stage 2: ',
+        label='Please enter the price (integer only) you want to charge for your product in stage 2: ',
         blank=False,
     )
 
     price2 = models.IntegerField(
-        label='Please enter the price you want to charge for your product (integer only) in stage 3: ',
+        label='Please enter the price (integer only) you want to charge for your product in stage 3: ',
         blank=False,
     )
 
@@ -198,20 +198,13 @@ class Stage2Price(Page):
             'opponent_value': opponent_value, 
         }
 
-
-class Stage3Price(Page):
-    form_model = 'player'
-    form_fields = ['price2']
-
-    @staticmethod
-    def vars_for_template(self):
+class Calculation(Page):
+    def is_displayed(self):
         utility = {0: self.subsession.utility_l, 1: self.subsession.utility_h}
         costs_i = {0: self.subsession.cost, 1: self.subsession.cost_i}
         costs_e = {0: self.subsession.cost, 1: self.subsession.cost_e}
         players = self.group.get_players()
         for p in players:
-            if p.id_in_group != self.id_in_group: 
-                opponent = p
             if p.player_role() == 'incumbent':
                 p.group.incumbent_utility1 = utility[p.quality] - p.price1
             else:
@@ -242,9 +235,28 @@ class Stage3Price(Page):
         for p in players:
             if self.player_role() == p.player_role() == 'incumbent':
                 p.group.incumbent_payoff1 = p.group.incumbent_demand1 * (p.price1 - costs_i[p.quality])
-                opponent_value = utility[opponent.quality] if p.group.entrant_demand1 > 0 else self.subsession.utility_m
             elif self.player_role() == p.player_role() == 'entrant':
                 p.group.entrant_payoff1 = p.group.entrant_demand1 * (p.price1 - costs_e[p.quality])
+        return False
+
+
+class Stage3Price(Page):
+    form_model = 'player'
+    form_fields = ['price2']
+
+    @staticmethod
+    def vars_for_template(self):
+        utility = {0: self.subsession.utility_l, 1: self.subsession.utility_h}
+        costs_i = {0: self.subsession.cost, 1: self.subsession.cost_i}
+        costs_e = {0: self.subsession.cost, 1: self.subsession.cost_e}
+        players = self.group.get_players()
+        for p in players:
+            if p.id_in_group != self.id_in_group: 
+                opponent = p
+        for p in players:
+            if self.player_role() == p.player_role() == 'incumbent':
+                opponent_value = utility[opponent.quality] if p.group.entrant_demand1 > 0 else self.subsession.utility_m
+            elif self.player_role() == p.player_role() == 'entrant':
                 opponent_value = utility[opponent.quality]
         return {
             'round_number': self.subsession.round_number, 
@@ -369,6 +381,7 @@ page_sequence = [
     Stage1WaitPage,
     Stage2Price, 
     Stage2WaitPage, 
+    Calculation, 
     Stage3Price, 
     Stage3WaitPage,
     Results, 
