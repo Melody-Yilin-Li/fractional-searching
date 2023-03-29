@@ -20,6 +20,15 @@ SESSION_CONFIG_DEFAULTS = dict(
 PARTICIPANT_FIELDS = []
 SESSION_FIELDS = []
 
+ROOMS = [
+    dict(
+        name='fractional_searching',
+        display_name='Fractional Searching',
+        participant_label_file='_rooms/participant_label.txt',
+        # use_secure_urls=True
+    ),
+]
+
 # ISO-639 code
 # for example: de, fr, ja, ko, zh-hans
 LANGUAGE_CODE = 'en'
