@@ -12,7 +12,7 @@ Experiment testing the fractional searching algorithm
 class C(BaseConstants):
     NAME_IN_URL = 'fractional_searching'
     PLAYERS_PER_GROUP = 2
-    NUM_ROUNDS = 2
+    NUM_ROUNDS = 15
 
 def creating_session(subsession):
     subsession.group_randomly()
