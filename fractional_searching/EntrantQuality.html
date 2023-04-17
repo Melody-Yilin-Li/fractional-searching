@@ -1,0 +1,49 @@
+{{ block title }}
+    Stage 1 - Product Type
+{{ endblock }}
+{{ block content }}
+    <p>
+        This is <b>round {{ round_number }}</b>. 
+    </p>
+    <p>
+        You are <b>{{ role }}</b> in this round. 
+    </p>
+    <p>
+        There are two types of the product, X and Y, and they have different values to consumers. 
+        The value is <b>{{ utility_l }} points</b> for a <b>type X</b> product, 
+        and <b>{{ utility_h }} points</b> for a <b>type Y</b> product.
+    </p> 
+    <p>
+        Consumers will choose the product with the highest net benefits (<b>value - price</b>). 
+    </p>
+    <p>
+        {{ if treat == 'CC' }}
+            Consumers will NOT know your product type in stage 2, 
+            so they will believe your product is either type with equal probabilities. 
+            That is the expected value of your product will be {{ utility_m }} points. 
+            Your exact product type will be revealed in stage 3 
+            if there are consumers buying from you in stage 2. 
+        {{ elif treat == 'FC' }}
+            There will be {{ search }} consumers who are able to buy the product only from you in stage 2. 
+            Consumers will NOT know your product type in stage 2, 
+            so they will believe your product is either type with equal probabilities.
+            That is the expected value of your product will be {{ utility_m }} points. 
+            Your exact product type will be revealed to the entire 100 consumers in stage 3 
+            if there are consumers buying from you in stage 2. 
+        {{ endif }}
+    </p>
+    <p>
+        Your counterpart chose {{ opponent_quality }} at this stage. 
+    </p>
+    <p>
+        Your production cost is <b>{{ cost }} points</b> for <b>type X</b> but <b>{{ cost_e }} points</b> for <b>type Y</b>. 
+    </p>
+    <p> 
+        Your payoff is calculated as <math><b>(price - cost) &times; demand</b></math>, where <math><b> demand </b></math> is the number of consumers 
+        who buy your product in each stage. 
+    </p>
+    {{ formfields }}
+    {{ next_button }}
+
+
+{{ endblock }}

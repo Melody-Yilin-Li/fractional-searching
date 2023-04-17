@@ -3,55 +3,246 @@
 {{ endblock }}
 
 {{ block content }}
+    <p><b>General Ideas</b></p>
     <p>
-        <b>Directions</b>: Please read the instructions below carefully as your payoff highly 
-        depends on your understanding. 
+        In the following rounds, you will be matched with another participant as your counterpart in each round.
+        <ul>
+            <li>
+                The match is anonymous: you do not know who you are matched with.
+            </li>
+            <li>
+                The experiment randomly rematches between rounds so your counterpart changes every round.
+            </li>
+            <li>
+                There are two roles: <b>player A</b> and <b>player B</b>. One of you will be randomly assigned to player A and the other one will be player B.
+            </li>
+            <li>
+                Each round is a new game and is not correlated with other rounds.
+            </li>
+        </ul>
     </p>
     <p>
-        You will participate in an economic task, in which you are going to sell your product
-        to a total of 100 consumers. <br>
-        This game is played by pairs of individuals. Each pair is made up of a 
-        <b> Player A </b> and a <b> Player B </b>. <br>
-        You will play this game for {{ num_rounds }} rounds and you will be randomly grouped 
-        with another player in each round. <br>  
-    </p>
-    <p>
-        Each round has multiple stages as follows: <br>
+        In each round, the game has 3 stages. 
+        You and your counterpart choose the type of your products at stage 1 and 
+        compete with price and product type at stages 2 and 3. <br>
         <b>Stage 1</b>: <br> 
-            You choose your product <b>type</b>, <b>X</b> or <b>Y</b>. <br> 
-            You have different costs of producing type X and type Y. <br>
-            The values of two types are different to consumers. <br> 
+            {{ if treat == 'OL' }}
+                At stage 1, you and your counterpart <b>simultaneously</b> choose the type of your products. <br> 
+                <ul>
+                    <li>
+                        Production is costly. The costs of producing <b>X</b> and producing <b>Y</b> are different. 
+                    </li>
+                    <li>
+                        You can observe both players' costs before you make the decision. 
+                    </li>
+                    <li>
+                        When you choose your product type, you cannot observe your counterpart's decision. 
+                    </li>
+                    <li>
+                        You cannot change your product type at stage 2 or 3.
+                    </li>
+                </ul>
+            {{ elif treat == 'CC' }}
+                At stage 1, you and your counterpart <b>sequentially</b> choose the type of your products, <b>X</b> or <b>Y</b>. <br>
+                <ul>
+                    <li>
+                        Production is costly. The costs of producing X and producing Y are different.
+                    </li>
+                    <li>
+                        You can observe both players' costs before you make the decision.
+                    </li>
+                    <li>
+                        Player A first choose their product type. Then, player B observe player A's product type and choose their type.
+                    </li>
+                    <li>
+                        Your product type affects your actions and payoffs at stage 2 and 3. You cannot change your product type at stage 2 or 3.
+                    </li>
+                </ul>
+            {{ elif treat == 'FC' }}
+                At stage 1, you and your counterpart <b>sequentially</b> choose the type of your products, X or Y. <br>
+                <ul>
+                    <li>
+                        Production is costly. The costs of producing X and producing Y are different.
+                    </li>
+                    <li>
+                        You can observe both players' costs before you make the decision.
+                    </li>
+                    <li>
+                        Player A first choose their product type. Then, player B observe player A's product type and choose their type.
+                    </li>
+                    <li>
+                        Your product type affects your actions and payoffs at stage 2 and 3. You cannot change your product type at stage 2 or 3.
+                    </li>
+                </ul>
+            {{ endif }}
         <b>Stage 2</b>: <br> 
-            You observe the type of other player's product in your group 
-            and her cost of producing that type. <br> 
-            You set the price of your product to be an integer inbetween your cost of producing it 
-            and the value of that type to consumers. <br> 
-            Consumers know both players' types and will buy the product that gives them a higher payoff, 
-            <b>value</b> of the product - <b>price</b> of the product. <br>
-            Player B's product type may be unknown to consuemrs in this stage, 
-            so they will believe her product is either type with equal probabilities and the value will 
-            be the average of both types. <br> 
-            Player B's type will be revealed to consumers in stage 3 
-            if there are consumers buying from her in stage 2. <br>
-            Your payoff in this stage is calculated as <math><b>(price - cost) &times; N</b> </math>,
-            where N is the number of consumers who bought your product. <br> 
+            {{ if treat == 'OL' }}
+                At stage 2, you and your counterpart simultaneously choose the price of your products. <br>
+                <ul>
+                    <li>
+                        You can observe both players' product types before you choose your price. 
+                    </li>
+                    <li>
+                        Your price is required to be between the cost of your product and the value consumers get from your product.
+                    </li>
+                </ul>
+                After you choose your prices, 100 bot consumers choose whose product they will purchase at this stage. 
+                For consumers, their <b>net benefit = product value - product price</b>.
+                <ul>
+                    <li>
+                        Consumers choose to purchase from the player that provides them a higher net benefit.
+                    </li>
+                    <li>
+                        Consumers observe both players' product types and prices before they make decisions.
+                    </li>
+                    <li>
+                        If both of you provide the same net benefit, consumers will prefer the one with a higher product value.
+                    </li>
+                    <li>
+                        If both of you provide the same net benefit and the same product value, both of you will equally share the market.
+                    </li>
+                </ul>
+            {{ elif treat == 'CC' }}
+                At stage 2, you and your counterpart first <b>simultaneously</b> choose the price of your products. <br>
+                <ul>
+                    <li>
+                        You can observe both players' product types before you choose your price.
+                    </li>
+                    <li>
+                        Your price is required to be between the cost of your product and the value consumers get from your product, so none of the participants in this game gets negative payoff.
+                    </li>
+                </ul>
+                After you choose your prices, 100 bot consumers choose whose product they will purchase at this stage. 
+                For consumers, their <b>net benefit = product value - product price</b>.
+                <ul>
+                    <li>
+                        Consumers choose to purchase from the player that provides them a higher net benefit.
+                    </li>
+                    <li>
+                        If both of you provide the same net benefit, consumers will prefer the one with a higher product value.
+                    </li>
+                    <li>
+                        If both of you provide the same net benefit and the same product value, both of you will equally share the market.
+                    </li>
+                </ul>
+                However, consumers only observe part of product information:
+                <ul>
+                    <li>
+                        Consumers only observe player A's product type at stage 2. Player B's type is unknown to consumers.
+                    </li>
+                    <li>
+                        Besides value from X and Y, consumers have a third value when the product type is unknown. 
+                        As player B's product type is unknown to consumers at stage 2, consumers will use the value of unknown product when calculating the net benefit from player B.
+                    </li>
+                    <li>
+                        Both players know the value of unknown product when they make decisions.
+                    </li>
+                    <li>
+                        Consumers know both players' prices when they make purchase decisions.
+                    </li>
+                </ul>
+            {{ elif treat == 'FC' }}
+                At stage 2, you and your counterpart first <b>simultaneously</b> choose the price of your products. <br>
+                <ul>
+                    <li>
+                        You can observe both players' product types before you choose your price.
+                    </li>
+                    <li>
+                        Your price is required to be between the cost of your product and the value consumers get from your product, so none of the participants in this game gets negative payoff.
+                    </li>
+                </ul>
+                After you choose your prices, 100 bot consumers choose whose product they will purchase at this stage. 
+                For consumers, their <b>net benefit = product value - product price</b>.
+                <ul>
+                    <li>
+                        At stage 2, you and your counterpart will be placed in two separate markets, 
+                        where {{ search }} consumers can only purchase from player B and {{ rest }} consumers can only purchase from player A.
+                    </li>
+                    <li>
+                        You and your counterpart cannot affect each other at stage 2. Consumers will purchase when their net benefit is non-negative.
+                    </li>
+                </ul>
+                However, consumers only observe part of product information:
+                <ul>
+                    <li>
+                        Consumers only observe player A's product type at stage 2. Player B's type is unknown to consumers.
+                    </li>
+                    <li>
+                        Besides value from X and Y, consumers have a third value when the product type is unknown. 
+                        As player B's product type is unknown to consumers at stage 2, consumers will use the value of unknown product when calculating the net benefit from player B.
+                    </li>
+                    <li>
+                        Both players know the value of unknown product when they make decisions.
+                    </li>
+                    <li>
+                        Consumers know both players' prices when they make purchase decisions.
+                    </li>
+                </ul>
+            {{ endif }}
         <b>Stage 3</b>: <br> 
-            You observe the number of consumers who bought your product and your payoff in stage 2. <br>
-            You set the price of your product to be an integer inbetween your cost of producing it 
-            and the value of that type to consumers. <br> 
-            Consumers know both players' types and will buy the product that gives them a higher payoff, 
-            <b>value</b> of the product - <b>price</b> of the product. <br>
-            Player B's product type may be revealed to consumers in this stage if she had consumers buying 
-            from her in stage 2. Thus consumers will know the exact value of her product in this stage. <br>
-            Your payoff in this stage is calculated as <math><b>(price - cost) &times; N</b> </math>,
-            where N is the number of consumers who bought your product. <br> 
+            {{ if treat == 'OL' }}
+                At stage 3, you and your counterpart repeat what you have done at stage 2: both of you simultaneously choose your price and consumers choose whose product they will purchase. 
+                You can choose a different price at stage 3 based on what you learn from the result of stage 2. However, what you have chosen at stage 2 does not affect the result of stage 3. 
+            {{ elif treat == 'CC' }}
+                At stage 3, you and your counterpart repeat what you have done at stage 2: both of you simultaneously choose your price and consumers choose whose product they will purchase. 
+                You can choose a different price at stage 3 based on what you learn from the result of stage 2. Whether consumers know player B's type at stage 3 depends on player B's demand at stage 2:
+                <ul>
+                    <li>
+                        If player B gets positive demand at stage 2, their product type becomes known to consumers at stage 3. 
+                        Consumers will use the value of player B's product type when calculating the net benefit.
+                    </li>
+                    <li>
+                        If player B gets 0 demand at stage 2, their product type is still unknown to consumers at stage 3.
+                    </li>
+                </ul>
+            {{ elif treat == 'FC' }}
+                At stage 3, all 100 consumers return to the same market and share the information of products they purchased at stage 2. Whether consumers know player B's type at stage 3 depends on player B's demand at stage 2. 
+                <ul>
+                    <li>
+                        If player B gets positive demand at stage 2, their product type becomes known to all consumers at stage 3.
+                    </li>
+                    <li>
+                        If player B gets 0 demand at stage 2, their product type is still unknown to all consumers at stage 3.
+                    </li>
+                </ul>
+                You and your counterpart then interact in the same market. Both of you simultaneously choose your price and consumers choose whose product they will purchase. 
+                You can choose a different price at stage 3 based on what you learn from the result of stage 2. Consumers' decision is as the following:
+                <ul>
+                    <li>
+                        Consumers choose to purchase from the player that provides them a higher net benefit.
+                    </li>
+                    <li>
+                        If both of you provide the same net benefit, consumers will prefer the one with a higher product value.
+                    </li>
+                    <li>
+                        If both of you provide the same net benefit and the same product value, both of you will equally share the market.
+                    </li>
+                </ul> 
+            {{ endif }}
     </p>
     <p>
-        After each round, your payoff is calculated as the sum of your payoff in stage 2 and your payoff in stage 3. <br>
-        After the last round, you will see you total payoff as the sum of payoffs in all rounds. 
+        <b>Your payoff in this round</b>
     </p>
     <p>
-        Please raise your hand in the Zoom call if you finish reading the instructions and are ready to play the game. 
+        {{ if treat == 'OL' or treat == 'CC' }}
+            At stage 2 and 3, your stage payoff is <math><b>(your product price - your product cost) &times; your demand</b></math>.
+            <ul>
+                <li>
+                    Your demand is the number of consumers who purchase your product. It can be either the whole market (100), 0, or half of the market (50). 
+                </li>
+            </ul>
+        {{ elif treat == 'FC' }}
+            At stage 2 and 3, your stage payoff is <math><b>(your product price - your product cost) &times; your demand</b></math>.
+            <ul>
+                <li>
+                    Your demand is the number of consumers who purchase your product. It can be either your own market or 0 at stage 2, or the whole market (100), 0, or half of the market (50) at stage 3. 
+                </li>
+            </ul>
+        {{ endif }}
+        Your payoff in this round is the sum of your payoffs at stages 2 and 3.
+    </p>
+    <p>
+        If you finish reading, please raise your hand in the Zoom meeting room with the blue icon under "participants" and wait for the experimenter to advance the page.
     </p>
     <!-- {{ next_button }} -->
 

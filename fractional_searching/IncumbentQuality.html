@@ -1,0 +1,39 @@
+{{ block title }}
+    Stage 1 - Product Type
+{{ endblock }}
+{{ block content }}
+    <p>
+        This is <b>round {{ round_number }}</b>. 
+    </p>
+    <p>
+        You are <b>{{ role }}</b> in this round. 
+    </p>
+    <p>
+        There are two types of the product, X and Y, and they have different values to consumers. 
+        The value is <b>{{ utility_l }} points</b> for a <b>type X</b> product, 
+        and <b>{{ utility_h }} points</b> for a <b>type Y</b> product.
+    </p> 
+    <p>
+        100 consumers will choose to buy from you or the other player. 
+        They will choose the product with the highest net benefits (<b>value - price</b>). 
+    </p>
+    <p>
+        {{ if treat == 'CC' }}
+            Consumers will know your product type before making the choice. 
+        {{ elif treat == 'FC' }}
+            There will be {{ rest }} consumers who are able to buy the product only from you in stage 2. 
+            Consumers will know your product type before making the choice.
+        {{ endif }}
+    </p>
+    <p>
+        Your production cost is <b>{{ cost }} points</b> for <b>type X</b> but <b>{{ cost_i }} points</b> for <b>type Y</b>. 
+    </p>
+    <p> 
+        Your payoff is calculated as <math><b>(price - cost) &times; demand</b></math>, where <math><b> demand </b></math> is the number of consumers 
+        who buy your product in each stage. 
+    </p>
+    {{ formfields }}
+    {{ next_button }}
+
+
+{{ endblock }}

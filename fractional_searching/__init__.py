@@ -137,9 +137,69 @@ class Instruction(Page):
         return self.subsession.round_number == 1
 
     def vars_for_template(self):
-        return {'num_rounds': C.NUM_ROUNDS}
+        return {
+            'num_rounds': C.NUM_ROUNDS,
+            'treat': self.subsession.treat, 
+            'search': self.subsession.search, 
+            'rest': 100 - self.subsession.search, 
+        }
+class IncumbentQuality(Page):
+    def is_displayed(self):
+        return self.subsession.treat != 'OL' and self.player_role() == 'incumbent'
+
+    form_model = 'player'
+    form_fields = ['quality']
+
+    @staticmethod
+    def vars_for_template(self):
+        return {
+            'round_number': self.subsession.round_number, 
+            'utility_h': self.subsession.utility_h, 
+            'utility_l': self.subsession.utility_l, 
+            'utility_m': self.subsession.utility_m, 
+            'cost': self.subsession.cost, 
+            'cost_i': self.subsession.cost_i, 
+            'cost_e': self.subsession.cost_e, 
+            'search': self.subsession.search, 
+            'treat': self.subsession.treat, 
+            'role': 'Player A' if self.player_role() == 'incumbent' else 'Player B', 
+            'rest': 100 - self.subsession.search, 
+        }
+class SequentialWaitPage(WaitPage):
+    pass
+
+class EntrantQuality(Page):
+    def is_displayed(self):
+        return self.subsession.treat != 'OL' and self.player_role() == 'entrant'
+
+    form_model = 'player'
+    form_fields = ['quality']
+
+    @staticmethod
+    def vars_for_template(self):
+        players = self.group.get_players()
+        for p in players:
+            if p.id_in_group != self.id_in_group: 
+                opponent = p
+        return {
+            'round_number': self.subsession.round_number, 
+            'utility_h': self.subsession.utility_h, 
+            'utility_l': self.subsession.utility_l, 
+            'utility_m': self.subsession.utility_m, 
+            'cost': self.subsession.cost, 
+            'cost_i': self.subsession.cost_i, 
+            'cost_e': self.subsession.cost_e, 
+            'search': self.subsession.search, 
+            'treat': self.subsession.treat, 
+            'role': 'Player A' if self.player_role() == 'incumbent' else 'Player B', 
+            'rest': 100 - self.subsession.search, 
+            'opponent_quality': 'Y' if opponent.quality else 'X',
+        }
 
 class Stage1Quality(Page):
+    def is_displayed(self):
+        return self.subsession.treat == 'OL'
+
     form_model = 'player'
     form_fields = ['quality']
 
@@ -204,26 +264,31 @@ class Calculation(Page):
         costs_i = {0: self.subsession.cost, 1: self.subsession.cost_i}
         costs_e = {0: self.subsession.cost, 1: self.subsession.cost_e}
         players = self.group.get_players()
+        incumbent_value = entrant_value = 0
         for p in players:
             if p.player_role() == 'incumbent':
                 p.group.incumbent_utility1 = utility[p.quality] - p.price1
+                incumbent_value = utility[p.quality]
             else:
                 if p.subsession.treat == 'OL':
                     p.group.entrant_utility1 = utility[p.quality] - p.price1
+                    entrant_value = utility[p.quality]
                 else:
                     p.group.entrant_utility1 = p.subsession.utility_m - p.price1
-        if self.subsession.treat != 'FC' and self.group.entrant_utility1 >= self.group.incumbent_utility1:
-            self.group.status = 1
-        elif self.subsession.treat == 'FC' and self.group.entrant_utility1 >= 0:
-            self.group.status = 1
-        else:
-            self.group.status = 0
+                    entrant_value = p.subsession.utility_m
         if self.subsession.treat != 'FC':
             if self.group.incumbent_utility1 > self.group.entrant_utility1:
                 self.group.incumbent_demand1 = 100 
                 self.group.entrant_demand1 = 0
             elif self.group.incumbent_utility1 == self.group.entrant_utility1: 
-                self.group.incumbent_demand1 = self.group.entrant_demand1 = 50
+                if incumbent_value > entrant_value:
+                    self.group.incumbent_demand1 = 100 
+                    self.group.entrant_demand1 = 0
+                elif incumbent_value < entrant_value:
+                    self.group.incumbent_demand1 = 0
+                    self.group.entrant_demand1 = 100
+                else: 
+                    self.group.incumbent_demand1 = self.group.entrant_demand1 = 50
             else:
                 self.group.incumbent_demand1 = 0
                 self.group.entrant_demand1 = 100
@@ -232,6 +297,10 @@ class Calculation(Page):
                 self.group.incumbent_demand1 = 100 - self.subsession.search
             if self.group.entrant_utility1 >= 0:
                 self.group.entrant_demand1 = self.subsession.search
+        if self.group.entrant_demand1 > 0: 
+            self.group.status = 1
+        else:
+            self.group.status = 0
         for p in players:
             if self.player_role() == p.player_role() == 'incumbent':
                 p.group.incumbent_payoff1 = p.group.incumbent_demand1 * (p.price1 - costs_i[p.quality])
@@ -301,22 +370,32 @@ class Results(Page):
         costs_i = {0: self.subsession.cost, 1: self.subsession.cost_i}
         costs_e = {0: self.subsession.cost, 1: self.subsession.cost_e}
         players = self.group.get_players()
+        incumbent_value = entrant_value = 0
         for p in players:
             if p.id_in_group != self.id_in_group: 
                 opponent = p
             if p.player_role() == 'incumbent':
                 p.group.incumbent_utility2 = utility[p.quality] - p.price2
+                incumbent_value = utility[p.quality]
             else:
                 if p.subsession.treat == 'OL' or self.group.status:
                     p.group.entrant_utility2 = utility[p.quality] - p.price2
+                    entrant_value = utility[p.quality]
                 else:
                     p.group.entrant_utility2 = p.subsession.utility_m - p.price2
-        
+                    entrant_value = p.subsession.utility_m
         if self.group.incumbent_utility2 > self.group.entrant_utility2:
             self.group.incumbent_demand2 = 100 
             self.group.entrant_demand2 = 0
         elif self.group.incumbent_utility2 == self.group.entrant_utility2: 
-            self.group.incumbent_demand2 = self.group.entrant_demand2 = 50
+            if incumbent_value > entrant_value:
+                self.group.incumbent_demand2 = 100 
+                self.group.entrant_demand2 = 0
+            elif incumbent_value < entrant_value:
+                self.group.incumbent_demand2 = 0
+                self.group.entrant_demand2 = 100
+            else: 
+                self.group.incumbent_demand2 = self.group.entrant_demand2 = 50
         else:
             self.group.incumbent_demand2 = 0
             self.group.entrant_demand2 = 100
@@ -377,6 +456,9 @@ class FinalResults(Page):
 page_sequence = [
     Welcome,
     Instruction,
+    IncumbentQuality,
+    SequentialWaitPage,
+    EntrantQuality,
     Stage1Quality,
     Stage1WaitPage,
     Stage2Price, 
