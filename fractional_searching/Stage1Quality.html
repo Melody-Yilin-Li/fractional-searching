@@ -46,13 +46,15 @@
     </p>
     <p>
         {{ if role == 'Player A' }}
-            Your production cost is <b>{{ cost }} points</b> for <b>type X</b> but <b>{{ cost_i }} points</b> for <b>type Y</b>. 
+            Your production cost is <b>{{ cost }} points</b> for <b>type X</b> but <b>{{ cost_i }} points</b> for <b>type Y</b>. <br>
+            Your counterpart's production cost is <b>{{ cost }} points</b> for <b>type X</b> but <b>{{ cost_e }} points</b> for <b>type Y</b>.
         {{ else }}
-            Your production cost is <b>{{ cost }} points</b> for <b>type X</b> but <b>{{ cost_e }} points</b> for <b>type Y</b>. 
+            Your production cost is <b>{{ cost }} points</b> for <b>type X</b> but <b>{{ cost_e }} points</b> for <b>type Y</b>. <br>
+            Your counterpart's production cost is <b>{{ cost }} points</b> for <b>type X</b> but <b>{{ cost_i }} points</b> for <b>type Y</b>.
         {{ endif }}
     </p>
     <p> 
-        Your payoff is calculated as <math><b>(price - cost) &times; N</b></math>, where <math><b> N </b></math> is the number of consumers 
+        Your payoff is calculated as <math><b>(price - cost) &times; demand</b></math>, where <math><b> demand </b></math> is the number of consumers 
         who buy your product in each stage. 
     </p>
     {{ formfields }}

@@ -205,6 +205,10 @@ class Stage1Quality(Page):
 
     @staticmethod
     def vars_for_template(self):
+        players = self.group.get_players()
+        for p in players:
+            if p.id_in_group != self.id_in_group: 
+                opponent = p
         return {
             'round_number': self.subsession.round_number, 
             'utility_h': self.subsession.utility_h, 
@@ -217,6 +221,8 @@ class Stage1Quality(Page):
             'treat': self.subsession.treat, 
             'role': 'Player A' if self.player_role() == 'incumbent' else 'Player B', 
             'rest': 100 - self.subsession.search, 
+            'opponent_role': 'Player B' if self.player_role() == 'incumbent' else 'Player A', 
+            'opponent_cost': self.subsession.cost_i if opponent.player_role() == 'incumbent' else self.subsession.cost_e, 
         }
     
 
