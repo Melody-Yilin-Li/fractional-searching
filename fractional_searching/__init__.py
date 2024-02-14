@@ -31,6 +31,14 @@ def creating_session(subsession):
                 subsession.cost_e = int(row['cost_e'])
                 subsession.search = int(row['search'])
                 subsession.treat = row['treat']
+    # Iterate through players in groups
+    for group in subsession.get_groups():
+        for player in group.get_players():
+            # Assign player_role attribute based on player's id_in_group
+            if player.id_in_group % 2 == 0:
+                player.player_role = 'entrant'
+            else:
+                player.player_role = 'incumbent'
 
 class Subsession(BaseSubsession):
     utility_h = models.IntegerField()
@@ -80,26 +88,23 @@ class Player(BasePlayer):
         blank=False,
     )
 
-    def player_role(self):
-        if self.id_in_group % 2:
-            return 'incumbent'
-        else:
-            return 'entrant'
+    player_role = models.StringField(choices=['incumbent', 'entrant'])
+
 
     def set_payoffs(self):
-        if self.player_role() == 'incumbent':
+        if self.player_role == 'incumbent':
             self.payoff = self.group.incumbent_payoff1 + self.group.incumbent_payoff2
         else:
             self.payoff = self.group.entrant_payoff1 + self.group.entrant_payoff2
 
 def price1_min(player):
-    if player.player_role() == 'incumbent': 
+    if player.player_role == 'incumbent': 
         return player.subsession.cost if player.quality == 0 else player.subsession.cost_i 
     else:
         return player.subsession.cost if player.quality == 0 else player.subsession.cost_e
 
 def price1_max(player):
-    if player.player_role() == 'incumbent': 
+    if player.player_role == 'incumbent': 
         return player.subsession.utility_l if player.quality == 0 else player.subsession.utility_h
     else:
         if player.subsession.treat == 'OL':
@@ -108,13 +113,13 @@ def price1_max(player):
             return player.subsession.utility_m 
 
 def price2_min(player):
-    if player.player_role() == 'incumbent': 
+    if player.player_role == 'incumbent': 
         return player.subsession.cost if player.quality == 0 else player.subsession.cost_i 
     else:
         return player.subsession.cost if player.quality == 0 else player.subsession.cost_e
 
 def price2_max(player):
-    if player.player_role() == 'incumbent' or player.subsession.treat == 'OL': 
+    if player.player_role == 'incumbent' or player.subsession.treat == 'OL': 
         return player.subsession.utility_l if player.quality == 0 else player.subsession.utility_h
     else:
         if player.group.entrant_demand1 > 0: 
@@ -145,7 +150,7 @@ class Instruction(Page):
         }
 class IncumbentQuality(Page):
     def is_displayed(self):
-        return self.subsession.treat != 'OL' and self.player_role() == 'incumbent'
+        return self.subsession.treat != 'OL' and self.player_role == 'incumbent'
 
     form_model = 'player'
     form_fields = ['quality']
@@ -162,7 +167,7 @@ class IncumbentQuality(Page):
             'cost_e': self.subsession.cost_e, 
             'search': self.subsession.search, 
             'treat': self.subsession.treat, 
-            'role': 'Player A' if self.player_role() == 'incumbent' else 'Player B', 
+            'role': 'Player A' if self.player_role == 'incumbent' else 'Player B', 
             'rest': 100 - self.subsession.search, 
         }
 class SequentialWaitPage(WaitPage):
@@ -170,7 +175,7 @@ class SequentialWaitPage(WaitPage):
 
 class EntrantQuality(Page):
     def is_displayed(self):
-        return self.subsession.treat != 'OL' and self.player_role() == 'entrant'
+        return self.subsession.treat != 'OL' and self.player_role == 'entrant'
 
     form_model = 'player'
     form_fields = ['quality']
@@ -191,7 +196,7 @@ class EntrantQuality(Page):
             'cost_e': self.subsession.cost_e, 
             'search': self.subsession.search, 
             'treat': self.subsession.treat, 
-            'role': 'Player A' if self.player_role() == 'incumbent' else 'Player B', 
+            'role': 'Player A' if self.player_role == 'incumbent' else 'Player B', 
             'rest': 100 - self.subsession.search, 
             'opponent_quality': 'Y' if opponent.quality else 'X',
         }
@@ -219,10 +224,10 @@ class Stage1Quality(Page):
             'cost_e': self.subsession.cost_e, 
             'search': self.subsession.search, 
             'treat': self.subsession.treat, 
-            'role': 'Player A' if self.player_role() == 'incumbent' else 'Player B', 
+            'role': 'Player A' if self.player_role == 'incumbent' else 'Player B', 
             'rest': 100 - self.subsession.search, 
-            'opponent_role': 'Player B' if self.player_role() == 'incumbent' else 'Player A', 
-            'opponent_cost': self.subsession.cost_i if opponent.player_role() == 'incumbent' else self.subsession.cost_e, 
+            'opponent_role': 'Player B' if self.player_role == 'incumbent' else 'Player A', 
+            'opponent_cost': self.subsession.cost_i if opponent.player_role == 'incumbent' else self.subsession.cost_e, 
         }
     
 
@@ -240,9 +245,9 @@ class Stage2Price(Page):
             if p.id_in_group != self.id_in_group: 
                 opponent = p
         for p in players:
-            if self.player_role() == p.player_role() == 'incumbent':
+            if self.player_role == p.player_role == 'incumbent':
                 opponent_value = utility[opponent.quality] if self.subsession.treat == 'OL' else self.subsession.utility_m
-            elif self.player_role() == p.player_role() == 'entrant':
+            elif self.player_role == p.player_role == 'entrant':
                 opponent_value = utility[opponent.quality]
         return {
             'round_number': self.subsession.round_number, 
@@ -254,13 +259,13 @@ class Stage2Price(Page):
             'cost_e': self.subsession.cost_e, 
             'search': self.subsession.search, 
             'treat': self.subsession.treat, 
-            'role': 'Player A' if self.player_role() == 'incumbent' else 'Player B', 
+            'role': 'Player A' if self.player_role == 'incumbent' else 'Player B', 
             'rest': 100 - self.subsession.search, 
             'type': 'Y' if self.quality else 'X', 
             'utility': self.subsession.utility_h if self.quality else self.subsession.utility_l,
             'opponent_quality': 'Y' if opponent.quality else 'X',  
-            'opponent_role': 'Player B' if self.player_role() == 'incumbent' else 'Player A', 
-            'opponent_cost': costs_i[opponent.quality] if opponent.player_role() == 'incumbent' else costs_e[opponent.quality], 
+            'opponent_role': 'Player B' if self.player_role == 'incumbent' else 'Player A', 
+            'opponent_cost': costs_i[opponent.quality] if opponent.player_role == 'incumbent' else costs_e[opponent.quality], 
             'opponent_value': opponent_value, 
         }
 
@@ -272,7 +277,7 @@ class Calculation(Page):
         players = self.group.get_players()
         incumbent_value = entrant_value = 0
         for p in players:
-            if p.player_role() == 'incumbent':
+            if p.player_role == 'incumbent':
                 p.group.incumbent_utility1 = utility[p.quality] - p.price1
                 incumbent_value = utility[p.quality]
             else:
@@ -308,9 +313,9 @@ class Calculation(Page):
         else:
             self.group.status = 0
         for p in players:
-            if self.player_role() == p.player_role() == 'incumbent':
+            if self.player_role == p.player_role == 'incumbent':
                 p.group.incumbent_payoff1 = p.group.incumbent_demand1 * (p.price1 - costs_i[p.quality])
-            elif self.player_role() == p.player_role() == 'entrant':
+            elif self.player_role == p.player_role == 'entrant':
                 p.group.entrant_payoff1 = p.group.entrant_demand1 * (p.price1 - costs_e[p.quality])
         return False
 
@@ -329,9 +334,9 @@ class Stage3Price(Page):
             if p.id_in_group != self.id_in_group: 
                 opponent = p
         for p in players:
-            if self.player_role() == p.player_role() == 'incumbent':
+            if self.player_role == p.player_role == 'incumbent':
                 opponent_value = utility[opponent.quality] if p.group.entrant_demand1 > 0 else self.subsession.utility_m
-            elif self.player_role() == p.player_role() == 'entrant':
+            elif self.player_role == p.player_role == 'entrant':
                 opponent_value = utility[opponent.quality]
         return {
             'round_number': self.subsession.round_number, 
@@ -343,18 +348,18 @@ class Stage3Price(Page):
             'cost_e': self.subsession.cost_e, 
             'search': self.subsession.search, 
             'treat': self.subsession.treat, 
-            'role': 'Player A' if self.player_role() == 'incumbent' else 'Player B', 
+            'role': 'Player A' if self.player_role == 'incumbent' else 'Player B', 
             'rest': 100 - self.subsession.search, 
             'entry': self.group.status, 
             'type': 'Y' if self.quality else 'X', 
             'utility': self.subsession.utility_h if self.quality else self.subsession.utility_l,
-            'demand1': self.group.incumbent_demand1 if self.player_role() == 'incumbent' else self.group.entrant_demand1, 
+            'demand1': self.group.incumbent_demand1 if self.player_role == 'incumbent' else self.group.entrant_demand1, 
             'price1': self.price1,
-            'payoff1': self.group.incumbent_payoff1 if self.player_role() == 'incumbent' else self.group.entrant_payoff1, 
+            'payoff1': self.group.incumbent_payoff1 if self.player_role == 'incumbent' else self.group.entrant_payoff1, 
             'opponent_quality': 'Y' if opponent.quality else 'X',  
-            'opponent_role': 'Player B' if self.player_role() == 'incumbent' else 'Player A', 
+            'opponent_role': 'Player B' if self.player_role == 'incumbent' else 'Player A', 
             'opponent_price1': opponent.price1, 
-            'opponent_cost': costs_i[opponent.quality] if opponent.player_role() == 'incumbent' else costs_e[opponent.quality], 
+            'opponent_cost': costs_i[opponent.quality] if opponent.player_role == 'incumbent' else costs_e[opponent.quality], 
             'opponent_value': opponent_value, 
         }
 
@@ -380,7 +385,7 @@ class Results(Page):
         for p in players:
             if p.id_in_group != self.id_in_group: 
                 opponent = p
-            if p.player_role() == 'incumbent':
+            if p.player_role == 'incumbent':
                 p.group.incumbent_utility2 = utility[p.quality] - p.price2
                 incumbent_value = utility[p.quality]
             else:
@@ -407,10 +412,10 @@ class Results(Page):
             self.group.entrant_demand2 = 100
         
         for p in players:
-            if self.player_role() == p.player_role() == 'incumbent':
+            if self.player_role == p.player_role == 'incumbent':
                 p.group.incumbent_payoff2 = p.group.incumbent_demand2 * (p.price2 - costs_i[p.quality])
                 opponent_value = utility[opponent.quality] if p.group.entrant_demand2 > 0 else self.subsession.utility_m
-            elif self.player_role() == p.player_role() == 'entrant':
+            elif self.player_role == p.player_role == 'entrant':
                 p.group.entrant_payoff2 = p.group.entrant_demand2 * (p.price2 - costs_e[p.quality])
                 opponent_value = utility[opponent.quality]
         self.set_payoffs()
@@ -424,21 +429,21 @@ class Results(Page):
             'cost_e': self.subsession.cost_e, 
             'search': self.subsession.search, 
             'treat': self.subsession.treat, 
-            'role': 'Player A' if self.player_role() == 'incumbent' else 'Player B', 
+            'role': 'Player A' if self.player_role == 'incumbent' else 'Player B', 
             'rest': 100 - self.subsession.search, 
             'entry': self.group.status,
             'type': 'Y' if self.quality else 'X', 
             'utility': self.subsession.utility_h if self.quality else self.subsession.utility_l,
-            'demand1': self.group.incumbent_demand1 if self.player_role() == 'incumbent' else self.group.entrant_demand1, 
-            'demand2': self.group.incumbent_demand2 if self.player_role() == 'incumbent' else self.group.entrant_demand2, 
+            'demand1': self.group.incumbent_demand1 if self.player_role == 'incumbent' else self.group.entrant_demand1, 
+            'demand2': self.group.incumbent_demand2 if self.player_role == 'incumbent' else self.group.entrant_demand2, 
             'price1': self.price1,
             'price2': self.price2,
-            'payoff1': self.group.incumbent_payoff1 if self.player_role() == 'incumbent' else self.group.entrant_payoff1, 
-            'payoff2': self.group.incumbent_payoff2 if self.player_role() == 'incumbent' else self.group.entrant_payoff2, 
+            'payoff1': self.group.incumbent_payoff1 if self.player_role == 'incumbent' else self.group.entrant_payoff1, 
+            'payoff2': self.group.incumbent_payoff2 if self.player_role == 'incumbent' else self.group.entrant_payoff2, 
             'opponent_quality': 'Y' if opponent.quality else 'X',  
-            'opponent_role': 'Player B' if self.player_role() == 'incumbent' else 'Player A', 
+            'opponent_role': 'Player B' if self.player_role == 'incumbent' else 'Player A', 
             'opponent_price2': opponent.price2, 
-            'opponent_cost': costs_i[opponent.quality] if opponent.player_role() == 'incumbent' else costs_e[opponent.quality], 
+            'opponent_cost': costs_i[opponent.quality] if opponent.player_role == 'incumbent' else costs_e[opponent.quality], 
             'opponent_value': opponent_value, 
             'cumulative_payoff': sum([p.payoff for p in self.in_all_rounds()]), 
             'round_payoff': self.payoff, 
