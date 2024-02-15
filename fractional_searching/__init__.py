@@ -68,6 +68,7 @@ class Group(BaseGroup):
 
 
 class Player(BasePlayer):
+    player_role = models.StringField(choices=['incumbent', 'entrant'])
     quality = models.IntegerField(
         choices=[
             [0, 'X'],
@@ -88,7 +89,7 @@ class Player(BasePlayer):
         blank=False,
     )
 
-    player_role = models.StringField(choices=['incumbent', 'entrant'])
+
 
 
     def set_payoffs(self):
